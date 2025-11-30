@@ -286,7 +286,7 @@ class NeuralWBCEnvCfgH1(NeuralWBCEnvCfg):
         super().__post_init__()
 
         self.reference_motion_manager.motion_path = get_data_path("motions/stable_punch.pkl")
-        self.reference_motion_manager.skeleton_path = get_data_path("motion_lib/h1.xml")
+        self.reference_motion_manager.skeleton_path = get_data_path("motion_lib/h1/h1.xml")
 
         if self.terrain.terrain_generator == HARD_ROUGH_TERRAINS_CFG:
             self.events.update_curriculum.params["penalty_level_up_threshold"] = 125

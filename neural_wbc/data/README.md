@@ -20,7 +20,7 @@ does not exist.
 from neural_wbc.data import get_data_path
 
 try:
-    data_file_path = get_data_path('mujoco/models/h1.xml')
+    data_file_path = get_data_path('mujoco/models/h1/h1.xml')
     print(f"Data file path: {data_file_path}")
 except FileNotFoundError as e:
     print(e)
