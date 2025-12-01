@@ -14,6 +14,10 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
   -wm xfce \
   -securitytypes none
 
+【查看pkl文件】
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play.py \
+    --num_envs 1 \
+    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl
 ================================================================================
                               H1 Pipeline
 ================================================================================
@@ -24,8 +28,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --robot h1 \
     --num_envs 12288 \
     --teacher_policy.max_iterations 10000 \
-    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
-    --log_dir logs/h1_punch \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --headless
 
 断点重训：
@@ -33,8 +36,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --robot h1 \
     --num_envs 12288 \
     --teacher_policy.max_iterations 100000 \
-    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
-    --log_dir logs/h1_punch \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --resume \
     --headless
 
@@ -42,7 +44,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_teacher_policy.py \
     --robot h1 \
     --num_envs 16 \
-    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --teacher_policy.resume_path neural_wbc/data/data/policy/h1:teacher \
     --teacher_policy.checkpoint model_10000.pt
 
@@ -74,8 +76,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --robot taks_t1 \
     --num_envs 12288 \
     --teacher_policy.max_iterations 100000 \
-    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
-    --log_dir logs/taks_t1_punch \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --headless
 
 断点重训：
@@ -83,8 +84,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --robot taks_t1 \
     --num_envs 12288 \
     --teacher_policy.max_iterations 100000 \
-    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
-    --log_dir logs/taks_t1_punch \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --resume \
     --headless
 
@@ -92,7 +92,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_teacher_policy.py \
     --robot taks_t1 \
     --num_envs 16 \
-    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --teacher_policy.resume_path neural_wbc/data/data/policy/taks_t1:teacher \
     --teacher_policy.checkpoint model_100000.pt
 

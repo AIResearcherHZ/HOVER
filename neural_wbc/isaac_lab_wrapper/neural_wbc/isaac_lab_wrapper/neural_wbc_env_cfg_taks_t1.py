@@ -376,7 +376,7 @@ class NeuralWBCEnvCfgTaksT1(NeuralWBCEnvCfg):
     def __post_init__(self):
         super().__post_init__()
 
-        self.reference_motion_manager.motion_path = get_data_path("motions/stable_punch.pkl")
+        self.reference_motion_manager.motion_path = get_data_path("motions/multitask_taks_t1.pkl")
         self.reference_motion_manager.skeleton_path = get_data_path("motion_lib/Taks_T1/Taks_T1.xml")
 
         if self.terrain.terrain_generator == HARD_ROUGH_TERRAINS_CFG:

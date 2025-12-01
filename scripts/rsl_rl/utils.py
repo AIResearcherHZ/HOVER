@@ -32,21 +32,26 @@ def get_customized_rsl_rl():
     """Helper function to ensure the correct version of rsl_rl is imported.
 
     This function does the following:
-    1. Gets the installed rsl_rl package location and adds it to sys.path
+    1. Adds the project's third_party/rsl_rl to sys.path (prioritized over system rsl_rl)
     2. Removes any existing rsl_rl and submodules from sys.modules to force reimporting
     """
     import sys
+    import os
 
-    import pkg_resources
-
-    dist = pkg_resources.require("rsl_rl")[0]
-    sys.path.insert(0, dist.location)
+    # Get the project root directory (HOVER)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(script_dir))
+    third_party_rsl_rl = os.path.join(project_root, "third_party", "rsl_rl")
 
     # Remove 'rsl_rl' from sys.modules if it was already imported
     modules_to_remove = [key for key in sys.modules if key.startswith("rsl_rl")]
     for module in modules_to_remove:
         print(f"Removing {module} from sys.modules")
         del sys.modules[module]
+
+    # Insert the project's third_party/rsl_rl at the beginning of sys.path
+    if third_party_rsl_rl not in sys.path:
+        sys.path.insert(0, third_party_rsl_rl)
 
 
 def get_player_args(description: str) -> argparse.ArgumentParser:
