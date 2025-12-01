@@ -58,7 +58,7 @@ def get_player_args(description: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--num_envs", type=int, default=2, help="Number of environments to simulate.")
     parser.add_argument("--env_spacing", type=int, default=5, help="Distance between environments in simulator.")
-    parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
+    parser.add_argument("--seed", type=int, default=42, help="Seed used for the environment")
     parser.add_argument("--reference_motion_path", type=str, default=None, help="Path to the reference motion dataset.")
     parser.add_argument("--robot", type=str, choices=["h1", "taks_t1"], default="h1", help="Robot used in environment")
     parser.add_argument(

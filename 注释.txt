@@ -23,8 +23,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 训练：
 ../IsaacLab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
-    --num_envs 5120 \
-    --seed 42 \
+    --num_envs 2048 \
     --teacher_policy.max_iterations 10000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --headless
@@ -32,8 +31,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 断点重训：
 ../IsaacLab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
-    --num_envs 5120 \
-    --seed 42 \
+    --num_envs 2048 \
     --teacher_policy.max_iterations 100000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --resume \
@@ -52,8 +50,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 训练：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_student_policy.py \
     --robot h1 \
-    --num_envs 5120 \
-    --seed 42 \
+    --num_envs 2048 \
     --student_policy.max_iterations 1000 \
     --teacher_policy.resume_path neural_wbc/data/data/policy/h1:teacher \
     --teacher_policy.checkpoint model_10000.pt \
@@ -74,8 +71,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 训练：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot taks_t1 \
-    --num_envs 5120 \
-    --seed 42 \
+    --num_envs 2048 \
     --teacher_policy.max_iterations 100000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --headless
@@ -83,8 +79,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 断点重训：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot taks_t1 \
-    --num_envs 5120 \
-    --seed 42 \
+    --num_envs 2048 \
     --teacher_policy.max_iterations 100000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --resume \
@@ -102,8 +97,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 训练：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_student_policy.py \
     --robot taks_t1 \
-    --num_envs 5120 \
-    --seed 42 \
+    --num_envs 2048 \
     --student_policy.max_iterations 10000 \
     --teacher_policy.resume_path neural_wbc/data/data/policy/taks_t1:teacher \
     --teacher_policy.checkpoint model_100000.pt \

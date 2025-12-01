@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser(
     description="Train an RL agent with RSL-RL.", formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
-parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
+parser.add_argument("--seed", type=int, default=42, help="Seed used for the environment")
 parser.add_argument("--reference_motion_path", type=str, default=None, help="Path to the reference motion dataset.")
 parser.add_argument("--robot", type=str, choices=["h1", "taks_t1"], default="h1", help="Robot used in environment")
 
