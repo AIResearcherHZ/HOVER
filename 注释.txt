@@ -1,0 +1,115 @@
+================================================================================
+                              仓库与环境准备
+================================================================================
+【Git 仓库克隆】
+git clone https://github.com/AIResearcherHZ/isaaclab.git
+git clone https://github.com/AIResearcherHZ/S2S2R.git
+git clone https://github.com/AIResearcherHZ/whole_body_tracking.git
+git clone https://github.com/AIResearcherHZ/GMR.git
+git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
+
+
+【服务器 VNC】
+/opt/TurboVNC/bin/vncserver \
+  -wm xfce \
+  -securitytypes none
+
+================================================================================
+                              H1 Pipeline
+================================================================================
+
+【Teacher Policy】
+训练：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
+    --robot h1 \
+    --num_envs 12288 \
+    --teacher_policy.max_iterations 100000 \
+    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
+    --log_dir logs/h1_punch \
+    --headless
+
+断点重训：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
+    --robot h1 \
+    --num_envs 12288 \
+    --teacher_policy.max_iterations 100000 \
+    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
+    --log_dir logs/h1_punch \
+    --resume \
+    --headless
+
+播放：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_teacher_policy.py \
+    --robot h1 \
+    --num_envs 16 \
+    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
+    --teacher_policy.resume_path neural_wbc/data/data/policy/h1:teacher \
+    --teacher_policy.checkpoint model_100000.pt
+
+
+【Student Policy】
+训练：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_student_policy.py \
+    --robot h1 \
+    --num_envs 12288 \
+    --student_policy.max_iterations 10000 \
+    --teacher_policy.resume_path neural_wbc/data/data/policy/h1:teacher \
+    --teacher_policy.checkpoint model_100000.pt \
+    --headless
+
+播放：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_student_policy.py \
+    --robot h1 \
+    --num_envs 16 \
+    --student_player \
+    --student_path neural_wbc/data/data/policy/h1:student \
+    --student_checkpoint model_10000.pt
+
+================================================================================
+                              Taks_T1 Pipeline
+================================================================================
+【Teacher Policy】
+训练：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
+    --robot taks_t1 \
+    --num_envs 12288 \
+    --teacher_policy.max_iterations 100000 \
+    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
+    --log_dir logs/taks_t1_punch \
+    --headless
+
+断点重训：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
+    --robot taks_t1 \
+    --num_envs 12288 \
+    --teacher_policy.max_iterations 100000 \
+    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
+    --log_dir logs/taks_t1_punch \
+    --resume \
+    --headless
+
+播放：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_teacher_policy.py \
+    --robot taks_t1 \
+    --num_envs 16 \
+    --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
+    --teacher_policy.resume_path neural_wbc/data/data/policy/taks_t1:teacher \
+    --teacher_policy.checkpoint model_100000.pt
+
+【Student Policy】
+训练：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_student_policy.py \
+    --robot taks_t1 \
+    --num_envs 12288 \
+    --student_policy.max_iterations 10000 \
+    --teacher_policy.resume_path neural_wbc/data/data/policy/taks_t1:teacher \
+    --teacher_policy.checkpoint model_100000.pt \
+    --headless
+
+播放：
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_student_policy.py \
+    --robot taks_t1 \
+    --num_envs 16 \
+    --student_player \
+    --student_path neural_wbc/data/data/policy/taks_t1:student \
+    --student_checkpoint model_10000.pt

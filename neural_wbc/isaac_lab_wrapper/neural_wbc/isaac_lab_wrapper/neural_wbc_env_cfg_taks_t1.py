@@ -25,6 +25,7 @@ from isaaclab.actuators import IdealPDActuatorCfg
 from isaaclab.assets import ArticulationCfg
 from isaaclab.sensors import RayCasterCfg, patterns
 from isaaclab.utils import configclass
+from isaaclab_assets import TAKS_T1_CFG
 
 from .events import NeuralWBCPlayEventCfg, NeuralWBCTrainEventCfg
 from .neural_wbc_env_cfg import NeuralWBCEnvCfg
@@ -58,8 +59,6 @@ DISTILL_MASK_MODES_ALL = {
 }
 
 
-# Note: You need to create a TAKS_T1_CFG similar to H1_CFG in isaaclab_assets
-# For now, we define the robot configuration inline
 @configclass
 class NeuralWBCEnvCfgTaksT1(NeuralWBCEnvCfg):
     # General parameters:
@@ -133,8 +132,7 @@ class NeuralWBCEnvCfgTaksT1(NeuralWBCEnvCfg):
         ),
     }
 
-    # Note: You need to define TAKS_T1_CFG in isaaclab_assets or use a USD file
-    # robot: ArticulationCfg = TAKS_T1_CFG.replace(prim_path="/World/envs/env_.*/Robot", actuators=actuators)
+    robot: ArticulationCfg = TAKS_T1_CFG.replace(prim_path="/World/envs/env_.*/Robot", actuators=actuators)
 
     body_names = [
         "pelvis",
