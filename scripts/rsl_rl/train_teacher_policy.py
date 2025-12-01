@@ -82,6 +82,7 @@ def main():
     env_cfg.scene.num_envs = args_cli.num_envs
     env_cfg.scene.env_spacing = 20
     env_cfg.terrain.env_spacing = 20
+    env_cfg.seed = args_cli.seed  # 设置环境 seed
     if args_cli.reference_motion_path:
         env_cfg.reference_motion_manager.motion_path = args_cli.reference_motion_path
 

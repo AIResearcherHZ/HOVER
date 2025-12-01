@@ -24,7 +24,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../IsaacLab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
     --num_envs 2048 \
-    --teacher_policy.max_iterations 10000 \
+    --teacher_policy.max_iterations 20000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --headless
 
@@ -32,7 +32,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../IsaacLab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
     --num_envs 2048 \
-    --teacher_policy.max_iterations 100000 \
+    --teacher_policy.max_iterations 10000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --resume \
     --headless
@@ -72,7 +72,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot taks_t1 \
     --num_envs 2048 \
-    --teacher_policy.max_iterations 100000 \
+    --teacher_policy.max_iterations 20000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --headless
 
@@ -80,7 +80,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot taks_t1 \
     --num_envs 2048 \
-    --teacher_policy.max_iterations 100000 \
+    --teacher_policy.max_iterations 10000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --resume \
     --headless
