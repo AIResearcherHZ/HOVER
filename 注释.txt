@@ -28,6 +28,10 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --headless
 
+# TensorBoard 日志查看
+../IsaacLab/isaaclab.sh -p -m tensorboard.main \
+  --logdir=logs/teacher
+
 断点重训：
 ../IsaacLab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
@@ -56,6 +60,10 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --teacher_policy.checkpoint model_10000.pt \
     --headless
 
+# TensorBoard 日志查看
+../IsaacLab/isaaclab.sh -p -m tensorboard.main \
+  --logdir=logs/student
+
 播放：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_student_policy.py \
     --robot h1 \
@@ -75,6 +83,10 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --teacher_policy.max_iterations 20000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --headless
+
+# TensorBoard 日志查看
+../IsaacLab/isaaclab.sh -p -m tensorboard.main \
+  --logdir=logs/teacher
 
 断点重训：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
@@ -102,6 +114,10 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --teacher_policy.resume_path neural_wbc/data/data/policy/taks_t1:teacher \
     --teacher_policy.checkpoint model_100000.pt \
     --headless
+
+# TensorBoard 日志查看
+../IsaacLab/isaaclab.sh -p -m tensorboard.main \
+  --logdir=logs/student
 
 播放：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_student_policy.py \
