@@ -23,7 +23,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
     --num_envs 12288 \
-    --teacher_policy.max_iterations 100000 \
+    --teacher_policy.max_iterations 10000 \
     --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
     --log_dir logs/h1_punch \
     --headless
@@ -44,7 +44,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --num_envs 16 \
     --reference_motion_path neural_wbc/data/data/motions/stable_punch.pkl \
     --teacher_policy.resume_path neural_wbc/data/data/policy/h1:teacher \
-    --teacher_policy.checkpoint model_100000.pt
+    --teacher_policy.checkpoint model_10000.pt
 
 
 【Student Policy】
@@ -52,9 +52,9 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_student_policy.py \
     --robot h1 \
     --num_envs 12288 \
-    --student_policy.max_iterations 10000 \
+    --student_policy.max_iterations 1000 \
     --teacher_policy.resume_path neural_wbc/data/data/policy/h1:teacher \
-    --teacher_policy.checkpoint model_100000.pt \
+    --teacher_policy.checkpoint model_10000.pt \
     --headless
 
 播放：
