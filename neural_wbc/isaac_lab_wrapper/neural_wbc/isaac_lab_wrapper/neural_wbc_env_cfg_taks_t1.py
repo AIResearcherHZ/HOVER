@@ -32,24 +32,28 @@ from .terrain import HARD_ROUGH_TERRAINS_CFG, flat_terrain
 
 DISTILL_MASK_MODES_ALL = {
     "exbody": {
-        "upper_body": [".*waist.*joint.*", ".*shoulder.*joint.*", ".*elbow.*joint.*", ".*wrist.*joint.*"],
+        "upper_body": ["waist_.*_joint", ".*_shoulder_.*_joint", ".*_elbow_joint", ".*_wrist_.*_joint"],
         "lower_body": ["root.*"],
     },
     "humanplus": {
-        "upper_body": [".*waist.*joint.*", ".*shoulder.*joint.*", ".*elbow.*joint.*", ".*wrist.*joint.*"],
-        "lower_body": [".*hip.*joint.*", ".*knee.*joint.*", ".*ankle.*joint.*", "root.*"],
+        "upper_body": ["waist_.*_joint", ".*_shoulder_.*_joint", ".*_elbow_joint", ".*_wrist_.*_joint"],
+        "lower_body": [".*_hip_.*_joint", ".*_knee_joint", ".*_ankle_.*_joint", "root.*"],
     },
     "h2o": {
         "upper_body": [
-            ".*shoulder.*link.*",
-            ".*elbow.*link.*",
-            ".*wrist.*link.*",
-            ".*hand.*link.*",
+            ".*_shoulder_.*_link",
+            ".*_elbow_link",
+            ".*_wrist_.*_link",
+            ".*_hand_link",
         ],
-        "lower_body": [".*ankle.*link.*"],
+        "lower_body": [".*_ankle_roll_link"],
     },
     "omnih2o": {
-        "upper_body": [".*hand.*link.*", ".*head.*link.*"],
+        "upper_body": [".*_hand_link", ".*head_link"],
+    },
+    "twist2": {
+        "upper_body": [".*_wrist_pitch_link", "neck_pitch_link"],
+        "lower_body": [".*_ankle_roll_link"],
     },
 }
 
@@ -69,7 +73,7 @@ class NeuralWBCEnvCfgTaksT1(NeuralWBCEnvCfg):
 
     # Mask setup for an OH2O specialist policy as default:
     distill_mask_sparsity_randomization_enabled = False
-    distill_mask_modes = {"omnih2o": DISTILL_MASK_MODES_ALL["omnih2o"]}
+    distill_mask_modes = {"twist2": DISTILL_MASK_MODES_ALL["twist2"]}
 
     # Robot geometry / actuation parameters:
     actuators = {

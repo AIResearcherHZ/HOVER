@@ -51,6 +51,10 @@ DISTILL_MASK_MODES_ALL = {
     "omnih2o": {
         "upper_body": [".*hand.*link.*", ".*head.*link.*"],
     },
+    "twist2": {
+        "upper_body": [".*hand.*link.*", ".*head.*link.*"],
+        "lower_body": [".*ankle.*link.*"],
+    },
 }
 
 
@@ -69,7 +73,7 @@ class NeuralWBCEnvCfgH1(NeuralWBCEnvCfg):
     # OH2O mode is tracking the head and hand positions. This can be modified to train a different specialist
     # or use the full DISTILL_MASK_MODES_ALL to train a generalist policy.
     distill_mask_sparsity_randomization_enabled = False
-    distill_mask_modes = {"omnih2o": DISTILL_MASK_MODES_ALL["omnih2o"]}
+    distill_mask_modes = {"twist2": DISTILL_MASK_MODES_ALL["twist2"]}
 
     # Robot geometry / actuation parameters:
     actuators = {
