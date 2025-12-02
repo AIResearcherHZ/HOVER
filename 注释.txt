@@ -14,6 +14,9 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
   -wm xfce \
   -securitytypes none
 
+【PIP】
+pip uninstall numpy scipy -y
+pip install numpy==1.26.4 scipy==1.11.4
 
 ================================================================================
                               H1 Pipeline
@@ -21,11 +24,11 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 
 【Teacher Policy】
 训练：
-../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
+../IsaacLab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
     --num_envs 4096 \
     --teacher_policy.max_iterations 20000 \
-    --reference_motion_path neural_wbc/data/data/motions/walk_h1.pkl \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --teacher_policy.path logs/teacher/h1 \
     --headless
 
@@ -34,11 +37,11 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
   --logdir=logs/teacher/h1
 
 断点重训：
-../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
+../IsaacLab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
     --num_envs 4096 \
     --teacher_policy.max_iterations 10000 \
-    --reference_motion_path neural_wbc/data/data/motions/walk_h1.pkl \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --teacher_policy.path logs/teacher/h1 \
     --teacher_policy.resume_path logs/teacher/h1 \
     --headless
@@ -47,7 +50,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/play.py \
     --robot h1 \
     --num_envs 16 \
-    --reference_motion_path neural_wbc/data/data/motions/walk_h1.pkl \
+    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --teacher_policy.resume_path logs/teacher/h1
 
 
@@ -55,10 +58,10 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 训练：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_student_policy.py \
     --robot h1 \
-    --num_envs 4096 \
-    --student_policy.max_iterations 1000 \
+    --num_envs 2 \
+    --student_policy.max_iterations 3000 \
     --teacher_policy.resume_path logs/teacher/h1 \
-    --teacher_policy.checkpoint model_10000.pt \
+    --teacher_policy.checkpoint model_20000.pt \
     --student_policy.path logs/student/h1 \
     --headless
 
@@ -113,7 +116,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_student_policy.py \
     --robot taks_t1 \
     --num_envs 4096 \
-    --student_policy.max_iterations 10000 \
+    --student_policy.max_iterations 30000 \
     --teacher_policy.resume_path logs/teacher/taks_t1 \
     --teacher_policy.checkpoint model_100000.pt \
     --student_policy.path logs/student/taks_t1 \

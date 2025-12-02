@@ -189,7 +189,7 @@ class StudentPolicyTrainer:
 
         str = (
             " \033[1m Learning iteration"
-            f" {self._iterations+self.start_iteration}/{self._cfg.max_iteration+self.start_iteration} \033[0m "
+            f" {self._iterations+self.start_iteration}/{self._cfg.max_iterations+self.start_iteration} \033[0m "
         )
 
         if len(locs["rewbuffer"]) > 0:
@@ -213,7 +213,7 @@ class StudentPolicyTrainer:
         log_string += ep_string
         log_string += f"""{'-' * width}\n""" f"""{'Mean loss:':>{pad}} {locs['mean_loss']:.3f}\n"""
 
-        eta = total_duration / (self._iterations + 1) * (self._cfg.max_iteration - self._iterations)
+        eta = total_duration / (self._iterations + 1) * (self._cfg.max_iterations - self._iterations)
         log_string += (
             f"""{'-' * width}\n"""
             f"""{'Total timesteps:':>{pad}} {self.tot_timesteps}\n"""
@@ -236,7 +236,7 @@ class StudentPolicyTrainer:
         self.writer.add_scalar("Perf/log_duration", log_duration, self._iterations)
 
     def _should_stop(self):
-        reached_max_iteration = self._iterations >= self._cfg.max_iteration
+        reached_max_iteration = self._iterations >= self._cfg.max_iterations
         return reached_max_iteration or self._has_converged()
 
     def _has_converged(self) -> bool:

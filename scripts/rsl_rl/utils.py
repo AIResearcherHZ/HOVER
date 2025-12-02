@@ -121,8 +121,20 @@ def get_ppo_runner_and_checkpoint_path(
         print(f"[INFO] Auto-detected latest checkpoint: {checkpoint} in {checkpoint_dir}")
         checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
     else:
+        # First try direct path
         checkpoint_path = os.path.join(resume_path, checkpoint)
         checkpoint_dir = resume_path
+        # If not found, search recursively
+        if not os.path.exists(checkpoint_path):
+            import glob
+            pattern = os.path.join(resume_path, "**", checkpoint)
+            matches = glob.glob(pattern, recursive=True)
+            if matches:
+                checkpoint_path = matches[0]
+                checkpoint_dir = os.path.dirname(checkpoint_path)
+                print(f"[INFO] Found checkpoint at: {checkpoint_path}")
+            else:
+                raise ValueError(f"Checkpoint {checkpoint} not found in {resume_path} or its subdirectories")
     # specify directory for logging experiments
     print(f"[INFO] Loading experiment from directory: {teacher_policy_cfg.runner.path}")
     print(f"[INFO]: Loading model checkpoint from: {checkpoint_path}")

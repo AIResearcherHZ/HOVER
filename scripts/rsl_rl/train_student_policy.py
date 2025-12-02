@@ -42,7 +42,7 @@ parser.add_argument("--reference_motion_path", type=str, default=None, help="Pat
 parser.add_argument("--output_dir", type=str, default="logs", help="Directory to store the training output.")
 parser.add_argument("--robot", type=str, choices=["h1", "taks_t1"], default="h1", help="Robot used in environment")
 parser.add_argument(
-    f"--{student_policy_args_prefix}root_path",
+    f"--{student_policy_args_prefix}path",
     type=str,
     default=os.path.join(project_dir, "logs/student"),
     help="Root directory of all student policy training artifacts.",
@@ -158,7 +158,7 @@ def get_config_values_from_argparser(args: argparse.Namespace, teacher_policy: N
 
     # Set student policy path
     args_dict["student_policy_path"] = resolve_student_policy_path(
-        root_path=getattr(args, f"{student_policy_args_prefix}root_path"),
+        root_path=getattr(args, f"{student_policy_args_prefix}path"),
         teacher_policy=teacher_policy,
         append_timestamp=getattr(args, f"{student_policy_args_prefix}append_timestamp"),
     )

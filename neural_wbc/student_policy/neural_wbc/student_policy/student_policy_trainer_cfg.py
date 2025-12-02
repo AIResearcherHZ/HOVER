@@ -40,7 +40,7 @@ class StudentPolicyTrainerCfg:
     num_steps_per_env: int = field(
         default=1, metadata={"description": "Maximum steps for one rollout during student training"}
     )
-    max_iteration: int = field(default=200000, metadata={"description": "Maximum training iteration"})
+    max_iterations: int = field(default=200000, metadata={"description": "Maximum training iteration"})
     save_iteration: int = field(
         default=500, metadata={"description": "How many iterations between two saved checkpoints"}
     )

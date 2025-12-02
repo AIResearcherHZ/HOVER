@@ -423,3 +423,356 @@ def resolve_dist_fn(
         raise ValueError(f"Unrecognized distribution {distribution}")
 
     return dist_fn
+
+
+# ==================== 新增鲁棒性域随机化函数 ====================
+
+
+def randomize_joint_armature(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    asset_cfg: SceneEntityCfg,
+    armature_distribution_params: tuple[float, float],
+    operation: Literal["add", "scale", "abs"] = "scale",
+    distribution: Literal["uniform", "log_uniform", "gaussian"] = "uniform",
+):
+    """随机化关节惯量（armature），模拟关节磨损和老化。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        asset_cfg: 资产配置
+        armature_distribution_params: 惯量分布参数 (min, max)
+        operation: 操作类型 ("add", "scale", "abs")
+        distribution: 分布类型
+    """
+    asset: Articulation = env.scene[asset_cfg.name]
+    
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device="cpu")
+    else:
+        env_ids = env_ids.cpu()
+    
+    # 解析关节索引
+    if asset_cfg.joint_ids == slice(None):
+        joint_ids = slice(None)
+    else:
+        joint_ids = torch.tensor(asset_cfg.joint_ids, dtype=torch.int, device="cpu")
+    
+    # 获取当前惯量 (使用内部属性 _dof_armatures)
+    armatures = asset.root_physx_view._dof_armatures.clone()
+    
+    # 初始化默认惯量
+    if not hasattr(env, "default_armatures"):
+        env.default_armatures = armatures.clone()
+    
+    # 基于默认值进行随机化
+    if isinstance(joint_ids, torch.Tensor):
+        armatures[env_ids[:, None], joint_ids] = \
+            env.default_armatures[env_ids[:, None], joint_ids].clone()
+    else:
+        armatures[env_ids, joint_ids] = \
+            env.default_armatures[env_ids, joint_ids].clone()
+    
+    dist_fn = resolve_dist_fn(distribution)
+    
+    if isinstance(joint_ids, slice):
+        num_joints = armatures.shape[1]
+    else:
+        num_joints = len(joint_ids)
+    
+    rand_samples = dist_fn(
+        *armature_distribution_params,
+        (len(env_ids), num_joints),
+        device=armatures.device
+    )
+    
+    if isinstance(joint_ids, torch.Tensor):
+        if operation == "add":
+            armatures[env_ids[:, None], joint_ids] += rand_samples
+        elif operation == "scale":
+            armatures[env_ids[:, None], joint_ids] *= rand_samples
+        elif operation == "abs":
+            armatures[env_ids[:, None], joint_ids] = rand_samples
+    else:
+        if operation == "add":
+            armatures[env_ids, joint_ids] += rand_samples
+        elif operation == "scale":
+            armatures[env_ids, joint_ids] *= rand_samples
+        elif operation == "abs":
+            armatures[env_ids, joint_ids] = rand_samples
+    
+    # 使用 set_dof_armatures 设置惯量
+    asset.root_physx_view.set_dof_armatures(armatures, env_ids)
+
+
+def randomize_action_noise_event(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    asset_cfg: SceneEntityCfg,
+    noise_std: float = 0.01,
+    noise_type: Literal["gaussian", "uniform"] = "gaussian",
+):
+    """随机化动作噪声，模拟控制信号不完美（量化误差、通讯抖动）。
+    
+    此函数设置环境中的动作噪声参数，实际噪声在动作应用时添加。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        asset_cfg: 资产配置
+        noise_std: 噪声标准差
+        noise_type: 噪声类型 ("gaussian" 或 "uniform")
+    """
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device=env.device)
+    
+    # 初始化动作噪声缓冲区
+    if not hasattr(env, "action_noise_std"):
+        env.action_noise_std = torch.zeros(env.num_envs, device=env.device)
+        env.action_noise_type = "gaussian"
+    
+    # 随机采样噪声标准差
+    env.action_noise_std[env_ids] = noise_std * torch.rand(len(env_ids), device=env.device)
+    env.action_noise_type = noise_type
+
+
+def randomize_action_delay_event(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    asset_cfg: SceneEntityCfg,
+    max_delay_steps: int = 5,
+):
+    """随机化动作延迟，模拟通讯延迟和控制周期不对齐。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        asset_cfg: 资产配置
+        max_delay_steps: 最大延迟步数
+    """
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device=env.device)
+    
+    # 初始化动作延迟缓冲区
+    if not hasattr(env, "action_delay_steps"):
+        env.action_delay_steps = torch.zeros(env.num_envs, dtype=torch.long, device=env.device)
+        env.action_history = None  # 将在首次使用时初始化
+    
+    # 随机采样延迟步数
+    env.action_delay_steps[env_ids] = torch.randint(0, max_delay_steps + 1, (len(env_ids),), device=env.device)
+
+
+def randomize_joint_encoder_noise_event(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    asset_cfg: SceneEntityCfg,
+    pos_noise_std: float = 0.005,
+    vel_noise_std: float = 0.01,
+    pos_bias_range: tuple[float, float] = (-0.01, 0.01),
+    vel_bias_range: tuple[float, float] = (-0.02, 0.02),
+):
+    """随机化关节编码器噪声，模拟编码器测量误差和零点偏移。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        asset_cfg: 资产配置
+        pos_noise_std: 位置噪声标准差 (rad)
+        vel_noise_std: 速度噪声标准差 (rad/s)
+        pos_bias_range: 位置偏置范围 (rad)
+        vel_bias_range: 速度偏置范围 (rad/s)
+    """
+    asset: Articulation = env.scene[asset_cfg.name]
+    num_joints = asset.num_joints
+    
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device=env.device)
+    
+    # 初始化编码器噪声缓冲区
+    if not hasattr(env, "encoder_pos_noise_std"):
+        env.encoder_pos_noise_std = torch.zeros(env.num_envs, num_joints, device=env.device)
+        env.encoder_vel_noise_std = torch.zeros(env.num_envs, num_joints, device=env.device)
+        env.encoder_pos_bias = torch.zeros(env.num_envs, num_joints, device=env.device)
+        env.encoder_vel_bias = torch.zeros(env.num_envs, num_joints, device=env.device)
+    
+    # 设置噪声参数
+    env.encoder_pos_noise_std[env_ids] = pos_noise_std
+    env.encoder_vel_noise_std[env_ids] = vel_noise_std
+    
+    # 随机采样偏置
+    env.encoder_pos_bias[env_ids] = torch.empty(len(env_ids), num_joints, device=env.device).uniform_(*pos_bias_range)
+    env.encoder_vel_bias[env_ids] = torch.empty(len(env_ids), num_joints, device=env.device).uniform_(*vel_bias_range)
+
+
+def randomize_imu_noise_and_bias_event(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    asset_cfg: SceneEntityCfg,
+    ang_vel_noise_std: float = 0.02,
+    lin_acc_noise_std: float = 0.05,
+    ang_vel_bias_range: tuple[float, float] = (-0.1, 0.1),
+    lin_acc_bias_range: tuple[float, float] = (-0.2, 0.2),
+    bias_drift_std: float = 0.01,
+):
+    """随机化IMU噪声和漂移，模拟真实IMU的测量特性。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        asset_cfg: 资产配置
+        ang_vel_noise_std: 角速度噪声标准差 (rad/s)
+        lin_acc_noise_std: 线加速度噪声标准差 (m/s^2)
+        ang_vel_bias_range: 角速度偏置范围
+        lin_acc_bias_range: 线加速度偏置范围
+        bias_drift_std: 偏置漂移标准差
+    """
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device=env.device)
+    
+    # 初始化IMU噪声缓冲区
+    if not hasattr(env, "imu_ang_vel_noise_std"):
+        env.imu_ang_vel_noise_std = torch.zeros(env.num_envs, device=env.device)
+        env.imu_lin_acc_noise_std = torch.zeros(env.num_envs, device=env.device)
+        env.imu_ang_vel_bias = torch.zeros(env.num_envs, 3, device=env.device)
+        env.imu_lin_acc_bias = torch.zeros(env.num_envs, 3, device=env.device)
+        env.imu_bias_drift_std = torch.zeros(env.num_envs, device=env.device)
+    
+    # 设置噪声参数
+    env.imu_ang_vel_noise_std[env_ids] = ang_vel_noise_std
+    env.imu_lin_acc_noise_std[env_ids] = lin_acc_noise_std
+    env.imu_bias_drift_std[env_ids] = bias_drift_std
+    
+    # 随机采样偏置
+    env.imu_ang_vel_bias[env_ids] = torch.empty(len(env_ids), 3, device=env.device).uniform_(*ang_vel_bias_range)
+    env.imu_lin_acc_bias[env_ids] = torch.empty(len(env_ids), 3, device=env.device).uniform_(*lin_acc_bias_range)
+
+
+def randomize_observation_dropout_event(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    asset_cfg: SceneEntityCfg,
+    dropout_prob: float = 0.001,
+    dropout_mode: Literal["zero", "hold"] = "hold",
+):
+    """随机化观测丢包，模拟传感器偶发失效。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        asset_cfg: 资产配置
+        dropout_prob: 每个维度丢包概率
+        dropout_mode: 丢包时的处理模式 ("zero" 置零, "hold" 保持上一帧值)
+    """
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device=env.device)
+    
+    # 初始化观测丢包缓冲区
+    if not hasattr(env, "obs_dropout_prob"):
+        env.obs_dropout_prob = torch.zeros(env.num_envs, device=env.device)
+        env.obs_dropout_mode = "hold"
+        env.prev_observations = None  # 将在首次使用时初始化
+    
+    env.obs_dropout_prob[env_ids] = dropout_prob
+    env.obs_dropout_mode = dropout_mode
+
+
+def randomize_joint_failure_event(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    asset_cfg: SceneEntityCfg,
+    failure_prob: float = 0.0001,
+    failure_mode: Literal["lock", "weak", "dead"] = "weak",
+    weak_factor: float = 0.5,
+):
+    """随机化关节故障，模拟电机故障（极低概率）。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        asset_cfg: 资产配置
+        failure_prob: 每个关节失效概率
+        failure_mode: 故障模式 ("lock" 锁定, "weak" 弱化, "dead" 完全失效)
+        weak_factor: 弱化模式下的扭矩衰减因子
+    """
+    asset: Articulation = env.scene[asset_cfg.name]
+    num_joints = asset.num_joints
+    
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device=env.device)
+    
+    # 初始化关节故障缓冲区
+    if not hasattr(env, "joint_failure_mask"):
+        env.joint_failure_mask = torch.zeros(env.num_envs, num_joints, dtype=torch.bool, device=env.device)
+        env.joint_failure_mode = "weak"
+        env.joint_weak_factor = torch.ones(env.num_envs, num_joints, device=env.device)
+    
+    # 随机采样故障关节
+    failure_mask = torch.rand(len(env_ids), num_joints, device=env.device) < failure_prob
+    env.joint_failure_mask[env_ids] = failure_mask
+    env.joint_failure_mode = failure_mode
+    
+    # 设置弱化因子
+    env.joint_weak_factor[env_ids] = torch.where(
+        failure_mask,
+        torch.full((len(env_ids), num_joints), weak_factor, device=env.device),
+        torch.ones(len(env_ids), num_joints, device=env.device)
+    )
+
+
+def randomize_sensor_latency_spike_event(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    asset_cfg: SceneEntityCfg,
+    spike_prob: float = 0.001,
+    max_latency_steps: int = 10,
+):
+    """随机化传感器延迟尖峰，模拟偶发的通讯阻塞。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        asset_cfg: 资产配置
+        spike_prob: 延迟尖峰发生概率
+        max_latency_steps: 最大延迟步数
+    """
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device=env.device)
+    
+    # 初始化传感器延迟缓冲区
+    if not hasattr(env, "sensor_latency_spike_prob"):
+        env.sensor_latency_spike_prob = torch.zeros(env.num_envs, device=env.device)
+        env.sensor_max_latency_steps = torch.zeros(env.num_envs, dtype=torch.long, device=env.device)
+        env.sensor_current_latency = torch.zeros(env.num_envs, dtype=torch.long, device=env.device)
+    
+    env.sensor_latency_spike_prob[env_ids] = spike_prob
+    env.sensor_max_latency_steps[env_ids] = max_latency_steps
+
+
+def randomize_gravity_bias_event(
+    env: "NeuralWBCEnv",
+    env_ids: torch.Tensor | None,
+    gravity_bias_range: dict[str, tuple[float, float]],
+):
+    """随机化重力方向偏置，模拟基座倾斜/坡度。
+    
+    注意：此函数通过在观测中添加重力偏置来模拟坡度效果，
+    而不是真正改变物理引擎中的重力。
+    
+    Args:
+        env: 环境实例
+        env_ids: 需要随机化的环境ID
+        gravity_bias_range: 重力偏置范围字典，包含 "x", "y", "z" 键
+    """
+    if env_ids is None:
+        env_ids = torch.arange(env.scene.num_envs, device=env.device)
+    
+    # 初始化重力偏置缓冲区
+    if not hasattr(env, "gravity_bias"):
+        env.gravity_bias = torch.zeros(env.num_envs, 3, device=env.device)
+    
+    # 按 xyz 范围采样重力偏置
+    for i, key in enumerate(["x", "y", "z"]):
+        if key in gravity_bias_range:
+            low, high = gravity_bias_range[key]
+            env.gravity_bias[env_ids, i] = torch.empty(len(env_ids), device=env.device).uniform_(low, high)

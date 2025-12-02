@@ -130,7 +130,7 @@ class TestStudentPolicyTrainer(unittest.TestCase):
             num_policy_obs=env.num_obs,
             num_student_obs=env.num_student_obs,
             num_actions=env.num_actions,
-            max_iteration=2,
+            max_iterations=2,
         )
         runner = StudentPolicyTrainer(env=env, cfg=cfg)
         runner.run()
@@ -155,7 +155,7 @@ class TestStudentPolicyTrainer(unittest.TestCase):
             num_policy_obs=env.num_obs,
             num_student_obs=env.num_student_obs,
             num_actions=env.num_actions,
-            max_iteration=2,
+            max_iterations=2,
             resume_path="fake/path",
         )
         self.assertRaises(ValueError, StudentPolicyTrainer, env=env, cfg=cfg)
