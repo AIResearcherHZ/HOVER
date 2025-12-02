@@ -58,7 +58,7 @@ pip install numpy==1.26.4 scipy==1.11.4
 训练：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_student_policy.py \
     --robot h1 \
-    --num_envs 2 \
+    --num_envs 4096 \
     --student_policy.max_iterations 3000 \
     --teacher_policy.resume_path logs/teacher/h1 \
     --teacher_policy.checkpoint model_20000.pt \
