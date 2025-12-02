@@ -289,7 +289,7 @@ class NeuralWBCEnvCfgH1(NeuralWBCEnvCfg):
     def __post_init__(self):
         super().__post_init__()
 
-        self.reference_motion_manager.motion_path = get_data_path("motions/multitask_h1.pkl")
+        self.reference_motion_manager.motion_path = get_data_path("motions/walk_h1.pkl")
         self.reference_motion_manager.skeleton_path = get_data_path("motion_lib/h1/h1.xml")
 
         if self.terrain.terrain_generator == HARD_ROUGH_TERRAINS_CFG:

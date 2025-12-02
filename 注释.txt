@@ -25,7 +25,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --robot h1 \
     --num_envs 2 \
     --teacher_policy.max_iterations 20000 \
-    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
+    --reference_motion_path neural_wbc/data/data/motions/walk_h1.pkl \
     --teacher_policy.path logs/teacher/h1 \
     --headless
 
@@ -38,7 +38,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --robot h1 \
     --num_envs 4096 \
     --teacher_policy.max_iterations 10000 \
-    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
+    --reference_motion_path neural_wbc/data/data/motions/walk_h1.pkl \
     --teacher_policy.path logs/teacher/h1 \
     --teacher_policy.resume_path logs/teacher/h1 \
     --headless
@@ -47,7 +47,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/play.py \
     --robot h1 \
     --num_envs 16 \
-    --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
+    --reference_motion_path neural_wbc/data/data/motions/walk_h1.pkl \
     --teacher_policy.resume_path logs/teacher/h1
 
 
