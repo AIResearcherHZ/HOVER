@@ -23,7 +23,7 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
 训练：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
     --robot h1 \
-    --num_envs 4096 \
+    --num_envs 2 \
     --teacher_policy.max_iterations 20000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
     --teacher_policy.path logs/teacher/h1 \
