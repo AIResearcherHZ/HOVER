@@ -88,6 +88,11 @@ def main():
 
     teacher_policy_cfg = TeacherPolicyCfg.from_argparse_args(args_cli)
 
+    # Auto-enable resume if resume_path is specified
+    if teacher_policy_cfg.runner.resume_path and not teacher_policy_cfg.runner.resume:
+        teacher_policy_cfg.runner.resume = True
+        print(f"[INFO] Auto-enabled resume mode since resume_path is specified: {teacher_policy_cfg.runner.resume_path}")
+
     # Create env and wrap it for RSL RL.
     env = NeuralWBCEnv(cfg=env_cfg)
     env = RslRlNeuralWBCVecEnvWrapper(env)
