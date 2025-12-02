@@ -73,6 +73,35 @@ get_customized_rsl_rl()
 from rsl_rl.runners import OnPolicyRunner
 
 
+def get_latest_checkpoint(directory: str) -> tuple[str, str] | None:
+    """Find the latest model checkpoint in a directory (recursively).
+
+    Looks for files matching pattern 'model_*.pt' and returns the one with highest iteration number.
+    Returns (checkpoint_dir, checkpoint_filename) or None if not found.
+    """
+    import glob
+    import re
+
+    # Search recursively
+    pattern = os.path.join(directory, "**", "model_*.pt")
+    checkpoint_files = glob.glob(pattern, recursive=True)
+
+    # Also check the directory itself
+    pattern_direct = os.path.join(directory, "model_*.pt")
+    checkpoint_files.extend(glob.glob(pattern_direct))
+
+    if not checkpoint_files:
+        return None
+
+    # Extract iteration numbers and find the maximum
+    def get_iteration(filepath):
+        match = re.search(r"model_(\d+)\.pt$", filepath)
+        return int(match.group(1)) if match else -1
+
+    latest = max(checkpoint_files, key=get_iteration)
+    return os.path.dirname(latest), os.path.basename(latest)
+
+
 def get_ppo_runner_and_checkpoint_path(
     teacher_policy_cfg: TeacherPolicyCfg,
     wrapped_env: EnvironmentWrapper,
@@ -84,14 +113,22 @@ def get_ppo_runner_and_checkpoint_path(
         raise ValueError("teacher_policy.resume_path is not specified")
     checkpoint = teacher_policy_cfg.runner.checkpoint
     if not checkpoint:
-        raise ValueError("teacher_policy.checkpoint is not specified")
+        # Auto-detect latest checkpoint (search recursively)
+        result = get_latest_checkpoint(resume_path)
+        if not result:
+            raise ValueError(f"No checkpoint found in {resume_path}. Please train a model first or specify --teacher_policy.checkpoint")
+        checkpoint_dir, checkpoint = result
+        print(f"[INFO] Auto-detected latest checkpoint: {checkpoint} in {checkpoint_dir}")
+        checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
+    else:
+        checkpoint_path = os.path.join(resume_path, checkpoint)
+        checkpoint_dir = resume_path
     # specify directory for logging experiments
     print(f"[INFO] Loading experiment from directory: {teacher_policy_cfg.runner.path}")
-    checkpoint_path = os.path.join(resume_path, teacher_policy_cfg.runner.checkpoint)
     print(f"[INFO]: Loading model checkpoint from: {checkpoint_path}")
 
     # Try overwrite policy configuration with the content from {log_root_path}/config.json.
-    teacher_policy_cfg.overwrite_policy_cfg_from_file(os.path.join(resume_path, "config.json"))
+    teacher_policy_cfg.overwrite_policy_cfg_from_file(os.path.join(checkpoint_dir, "config.json"))
 
     # load previously trained model
     ppo_runner = OnPolicyRunner(wrapped_env, teacher_policy_cfg.to_dict(), log_dir=log_dir, device=device)

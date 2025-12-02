@@ -279,7 +279,7 @@ class NeuralWBCEnvCfgH1(NeuralWBCEnvCfg):
     height_scanner = RayCasterCfg(
         prim_path="/World/envs/env_.*/Robot/pelvis",
         offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 0.0)),
-        attach_yaw_only=True,
+        ray_alignment="yaw",
         # Apply a grid pattern that is smaller than the resolution to only return one height value.
         pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=[0.05, 0.05]),
         debug_vis=False,

@@ -26,11 +26,12 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --num_envs 2048 \
     --teacher_policy.max_iterations 20000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
+    --teacher_policy.path logs/teacher/h1 \
     --headless
 
 # TensorBoard 日志查看
 ../IsaacLab/isaaclab.sh -p -m tensorboard.main \
-  --logdir=logs/teacher
+  --logdir=logs/teacher/h1
 
 断点重训：
 ../IsaacLab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
@@ -38,16 +39,17 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --num_envs 2048 \
     --teacher_policy.max_iterations 10000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
+    --teacher_policy.path logs/teacher/h1 \
+    --teacher_policy.resume_path logs/teacher/h1 \
     --resume \
     --headless
 
 播放：
-../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_teacher_policy.py \
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play.py \
     --robot h1 \
     --num_envs 16 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
-    --teacher_policy.resume_path neural_wbc/data/data/policy/h1:teacher \
-    --teacher_policy.checkpoint model_10000.pt
+    --teacher_policy.resume_path logs/teacher/h1
 
 
 【Student Policy】
@@ -56,20 +58,21 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --robot h1 \
     --num_envs 2048 \
     --student_policy.max_iterations 1000 \
-    --teacher_policy.resume_path neural_wbc/data/data/policy/h1:teacher \
+    --teacher_policy.resume_path logs/teacher/h1 \
     --teacher_policy.checkpoint model_10000.pt \
+    --student_policy.path logs/student/h1 \
     --headless
 
 # TensorBoard 日志查看
 ../IsaacLab/isaaclab.sh -p -m tensorboard.main \
-  --logdir=logs/student
+  --logdir=logs/student/h1
 
 播放：
-../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_student_policy.py \
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play.py \
     --robot h1 \
     --num_envs 16 \
     --student_player \
-    --student_path neural_wbc/data/data/policy/h1:student \
+    --student_path logs/student/h1 \
     --student_checkpoint model_10000.pt
 
 ================================================================================
@@ -82,11 +85,12 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --num_envs 2048 \
     --teacher_policy.max_iterations 20000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
+    --teacher_policy.path logs/teacher/taks_t1 \
     --headless
 
 # TensorBoard 日志查看
 ../IsaacLab/isaaclab.sh -p -m tensorboard.main \
-  --logdir=logs/teacher
+  --logdir=logs/teacher/taks_t1
 
 断点重训：
 ../isaaclab/isaaclab.sh -p scripts/rsl_rl/train_teacher_policy.py \
@@ -94,16 +98,17 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --num_envs 2048 \
     --teacher_policy.max_iterations 10000 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
+    --teacher_policy.path logs/teacher/taks_t1 \
+    --teacher_policy.resume_path logs/teacher/taks_t1 \
     --resume \
     --headless
 
 播放：
-../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_teacher_policy.py \
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play.py \
     --robot taks_t1 \
     --num_envs 16 \
     --reference_motion_path neural_wbc/data/data/motions/multitask_h1.pkl \
-    --teacher_policy.resume_path neural_wbc/data/data/policy/taks_t1:teacher \
-    --teacher_policy.checkpoint model_100000.pt
+    --teacher_policy.resume_path logs/teacher/taks_t1
 
 【Student Policy】
 训练：
@@ -111,18 +116,19 @@ git clone --recurse-submodules https://github.com/AIResearcherHZ/HOVER
     --robot taks_t1 \
     --num_envs 2048 \
     --student_policy.max_iterations 10000 \
-    --teacher_policy.resume_path neural_wbc/data/data/policy/taks_t1:teacher \
+    --teacher_policy.resume_path logs/teacher/taks_t1 \
     --teacher_policy.checkpoint model_100000.pt \
+    --student_policy.path logs/student/taks_t1 \
     --headless
 
 # TensorBoard 日志查看
 ../IsaacLab/isaaclab.sh -p -m tensorboard.main \
-  --logdir=logs/student
+  --logdir=logs/student/taks_t1
 
 播放：
-../isaaclab/isaaclab.sh -p scripts/rsl_rl/play_student_policy.py \
+../isaaclab/isaaclab.sh -p scripts/rsl_rl/play.py \
     --robot taks_t1 \
     --num_envs 16 \
     --student_player \
-    --student_path neural_wbc/data/data/policy/taks_t1:student \
+    --student_path logs/student/taks_t1 \
     --student_checkpoint model_10000.pt

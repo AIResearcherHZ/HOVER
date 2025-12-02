@@ -31,7 +31,7 @@ from isaaclab.utils import configclass
 
 from .events import NeuralWBCEventCfg, NeuralWBCPlayEventCfg, NeuralWBCTrainEventCfg
 from .rewards import NeuralWBCRewardCfg
-from .terrain import rough_terrain
+from .terrain import flat_terrain
 from .utils import convert_serializable_to_tensors_and_slices, convert_tensors_and_slices_to_serializable
 
 
@@ -55,7 +55,7 @@ class NeuralWBCEnvCfg(DirectRLEnvCfg):
     sim: SimulationCfg = SimulationCfg(dt=dt, render_interval=decimation, physx=PhysxCfg(bounce_threshold_velocity=0.2))
 
     # terrain
-    terrain = rough_terrain
+    terrain = flat_terrain
 
     # Scene
     scene: InteractiveSceneCfg = InteractiveSceneCfg(num_envs=2, env_spacing=4.0, replicate_physics=True)

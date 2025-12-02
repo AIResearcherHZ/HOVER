@@ -367,7 +367,7 @@ class NeuralWBCEnvCfgTaksT1(NeuralWBCEnvCfg):
     height_scanner = RayCasterCfg(
         prim_path="/World/envs/env_.*/Robot/pelvis",
         offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 0.0)),
-        attach_yaw_only=True,
+        ray_alignment="yaw",
         pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=[0.05, 0.05]),
         debug_vis=False,
         mesh_prim_paths=["/World/ground"],

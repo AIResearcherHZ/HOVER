@@ -47,7 +47,7 @@ class TestObservations(unittest.TestCase):
 
         # Mocking the Articulation and its attributes
         self.asset = Mock(spec=Articulation)
-        self.asset.data.joint_friction = torch.randn((self.num_envs, 2))
+        self.asset.data.joint_friction_coeff = torch.randn((self.num_envs, 2))
 
     def test_compute_privileged_observations(self):
         privileged_obs, privileged_obs_dict = compute_privileged_observations(env=self.env, asset=self.asset)
@@ -66,7 +66,7 @@ class TestObservations(unittest.TestCase):
         self.assertTrue(torch.equal(privileged_obs_dict["base_com_bias"], self.env.base_com_bias))
         self.assertTrue(
             torch.equal(
-                privileged_obs_dict["ground_friction_values"], self.asset.data.joint_friction[:, self.env.feet_ids]
+                privileged_obs_dict["ground_friction_values"], self.asset.data.joint_friction_coeff[:, self.env.feet_ids]
             )
         )
         self.assertTrue(torch.equal(privileged_obs_dict["body_mass_scale"], self.env.body_mass_scale))
